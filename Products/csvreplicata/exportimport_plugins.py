@@ -1,8 +1,14 @@
 import logging
+import re
+from lxml import html
+from lxml.html.clean import clean_html
+
 from Products.csvreplicata import adapters
 from DateTime.DateTime import DateTime
+from Products.CMFPlone.utils import safe_unicode
 from Products.CMFCore.utils import getToolByName
 from Products.csvreplicata.adapters import CSVReplicataObjectSearcherAbstract
+
 
 class WorkflowExportImporter(adapters.CSVReplicataExportImportPluginAbstract):
 
@@ -59,6 +65,47 @@ class WorkflowExportImporter(adapters.CSVReplicataExportImportPluginAbstract):
                         wchain.updateRoleMappingsFor(self.context)
                         self.context.reindexObject()
 
+
+class PlainBodyTextExportImporter(adapters.CSVReplicataExportImportPluginAbstract):
+    """ Class dedicated to strip HTML from body text and fill cells in a *.csv """
+    def __init__(self, *args, **kwargs):
+        adapters.CSVReplicataExportImportPluginAbstract.__init__(self, *args, **kwargs)
+        self.prefix = ''
+        self.ids.append('filteredBody')
+
+    def setTextStyle(self, body_text):
+        # set additional style
+        styled_text = re.sub('<p.*?>', '<p>\n', body_text)
+        styled_text = re.sub('<br>', '<br>\n', styled_text)
+        # clean text from all tags
+        return html.fromstring(styled_text).text_content()
+
+    def getBodyText(self):
+        """ Method dedicated to filter html tags in body """
+        plain_text = ''
+        if hasattr(self.context, 'getText'):
+            body_text = self.context.getText()
+            if body_text:
+                body_text = safe_unicode(body_text)
+                # remove the all suspicious content
+                body_text = clean_html(body_text)
+                plain_text = self.setTextStyle(body_text)
+        return plain_text
+
+    def fill_values(self, row, row_ids):
+        """ Set values (export) """
+        for id in row_ids:
+            if id in self.ids:
+                index = row_ids.index(id)
+                if index < len(row):
+                    row[index] = self.getBodyText()
+
+    def set_values(self, row, row_ids):
+        """ Set values (import) """
+        logger = logging.getLogger('Products.csvreplicata.adapters.PlainBodyTextExportImporter')
+        if not getattr(self, 'csvlog', True):
+            self.csvlog = True
+            logger.info('Import not implemented')
 
 #
 # TO EXPORT COMMENTS.
