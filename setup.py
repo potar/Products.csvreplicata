@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os
 import sys
 
-version = '1.1.10-qg'
+version = '1.1.10-qg2'
 
 setupdir = os.path.abspath(
     os.path.dirname(__file__)
