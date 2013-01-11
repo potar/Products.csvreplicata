@@ -192,3 +192,25 @@ class CommentsExportImporter(adapters.CSVReplicataExportImportPluginAbstract):
             self.csvlog = True
             logger.info('Import comments not implemented')
 
+
+class AuthorExportImporter(adapters.CSVReplicataExportImportPluginAbstract):
+    """ Class dedicated to fill cell "author" in a *.csv """
+    def __init__(self, *args, **kwargs):
+        adapters.CSVReplicataExportImportPluginAbstract.__init__(self, *args, **kwargs)
+        self.prefix = ''
+        self.ids.append('author')
+
+    def fill_values(self, row, row_ids):
+        """ Set values (export) """
+        for id in row_ids:
+            if id in self.ids:
+                index = row_ids.index(id)
+                if index < len(row):
+                    row[index] = '\n'.join(self.context.getRawCreators())
+
+    def set_values(self, row, row_ids):
+        """ Set values (import) """
+        logger = logging.getLogger('Products.csvreplicata.adapters.AuthorExportImporter')
+        if not getattr(self, 'csvlog', True):
+            self.csvlog = True
+            logger.info('Import not implemented')

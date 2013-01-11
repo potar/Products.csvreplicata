@@ -15,6 +15,12 @@
       for="Products.csvreplicata.interfaces.Icsvreplicata zope.interface.Interface"
     />
   <adapter
+      name="author_exportimporter"
+      factory=".exportimport_plugins.AuthorExportImporter"
+      provides="Products.csvreplicata.interfaces.ICSVReplicataExportImportPlugin"
+      for="Products.csvreplicata.interfaces.Icsvreplicata zope.interface.Interface"
+    />
+  <adapter
       name="comments_exporter"
       factory=".exportimport_plugins.CommentsExportImporter"
       provides="Products.csvreplicata.interfaces.ICSVReplicataExportImportPlugin"
