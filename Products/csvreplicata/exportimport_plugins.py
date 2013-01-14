@@ -214,3 +214,27 @@ class AuthorExportImporter(adapters.CSVReplicataExportImportPluginAbstract):
         if not getattr(self, 'csvlog', True):
             self.csvlog = True
             logger.info('Import not implemented')
+
+
+class CreationDateExportImporter(adapters.CSVReplicataExportImportPluginAbstract):
+    """ Class dedicated to fill cell "author" in a *.csv """
+    def __init__(self, *args, **kwargs):
+        adapters.CSVReplicataExportImportPluginAbstract.__init__(self, *args, **kwargs)
+        self.prefix = ''
+        self.ids.append('date created')
+
+    def fill_values(self, row, row_ids):
+        """ Set values (export) """
+        for id in row_ids:
+            if id in self.ids:
+                index = row_ids.index(id)
+                if index < len(row):
+                    creation_date = self.context.getRawCreation_date()
+                    row[index] = self.context.toLocalizedTime(creation_date)
+
+    def set_values(self, row, row_ids):
+        """ Set values (import) """
+        logger = logging.getLogger('Products.csvreplicata.adapters.CreationDateExportImporter')
+        if not getattr(self, 'csvlog', True):
+            self.csvlog = True
+            logger.info('Import not implemented')
