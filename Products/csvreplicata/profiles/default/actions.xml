@@ -5,7 +5,7 @@
      category="object"
      condition_expr="object/@@isCSVReplicable"
      url_expr="string:${object_url}/@@csvreplicata" visible="True">
-   <permission>View</permission>
+  <permission>Manage portal</permission>
   </action>
  </action-provider>
 </object>
